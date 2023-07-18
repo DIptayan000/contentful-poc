@@ -1,4 +1,8 @@
 const POST_GRAPHQL_FIELDS = `
+__typename
+  sys {
+    id
+  }
 slug
 title
 coverImage {
