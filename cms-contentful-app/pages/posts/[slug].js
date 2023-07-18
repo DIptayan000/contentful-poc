@@ -11,9 +11,12 @@ import Layout from '../../components/layout'
 import { getAllPostsWithSlug, getPostAndMorePosts } from '../../lib/api'
 import PostTitle from '../../components/post-title'
 import { CMS_NAME } from '../../lib/constants'
+import { useContentfulLiveUpdates } from '@contentful/live-preview/react'
 
 export default function Post({ post, morePosts, preview }) {
   const router = useRouter()
+  const updatedPost = useContentfulLiveUpdates(post)
+
 
   if (!router.isFallback && !post) {
     return <ErrorPage statusCode={404} />
@@ -30,17 +33,18 @@ export default function Post({ post, morePosts, preview }) {
             <article>
               <Head>
                 <title>
-                  {`${post.title} | Next.js Blog Example with ${CMS_NAME}`}
+                  {`${updatedPost.title} | Next.js Blog Example with ${CMS_NAME}`}
                 </title>
-                <meta property="og:image" content={post.coverImage.url} />
+                <meta property="og:image" content={updatedPost.coverImage.url} />
               </Head>
               <PostHeader
-                title={post.title}
-                coverImage={post.coverImage}
-                date={post.date}
-                author={post.author}
+                title={updatedPost.title}
+                coverImage={updatedPost.coverImage}
+                date={updatedPost.date}
+                author={updatedPost.author}
+                id={post.sys.id}
               />
-              <PostBody content={post.content} />
+              <PostBody content={updatedPost.content} id={post.sys.id} />
             </article>
             <SectionSeparator />
             {morePosts && morePosts.length > 0 && (
@@ -54,8 +58,9 @@ export default function Post({ post, morePosts, preview }) {
 }
 
 export async function getStaticProps({ params, preview = false }) {
+  console.log('Inside slug.js...');
+  console.log(params);
   const data = await getPostAndMorePosts(params.slug, preview)
-
   return {
     props: {
       preview,
